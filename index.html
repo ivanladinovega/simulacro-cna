@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Maestro: Defensa Acreditación USTA (Texto Íntegro)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- 1. ESTÉTICA GENERAL --- */
+        :root {
+            --usta-blue: #1e3a8a;       /* Azul Institucional */
+            --usta-gold: #f59e0b;       /* Dorado/Ambar */
+            --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --text-dark: #1f2937;
+            
+            /* Semáforo y Badges */
+            --green-soft: #ecfdf5; --green-text: #064e3b;
+            --red-soft: #fef2f2;   --red-text: #991b1b;
+            --blue-soft: #eff6ff;  --blue-text: #1e40af;
+            --purple-soft: #faf5ff; --purple-text: #6b21a8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        body {
+            height: 100vh; width: 100vw; overflow: hidden;
+            background-color: #f3f4f6;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- 2. PANTALLA DE INICIO (LANDING PAGE) - INTACTA --- */
+        #landing-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-gradient);
+            z-index: 2000;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: white;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            padding: 20px;
+        }
+
+        .landing-card {
+            background: rgba(255, 255, 255, 0.98);
+            color: var(--text-dark);
+            width: 100%; max-width: 950px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .landing-header {
+            background: #f8fafc; padding: 30px 40px; border-bottom: 1px solid #e2e8f0; text-align: center;
+        }
+        .landing-header h1 { font-size: 2.2rem; color: var(--usta-blue); margin-bottom: 10px; font-weight: 900; letter-spacing: -1px; }
+        .landing-header p { font-size: 1.1rem; color: #64748b; }
+
+        .landing-body { padding: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+
+        /* TEXTO EXACTO SOLICITADO */
+        .context-box {
+            background: #fffbeb; border-left: 6px solid var(--usta-gold);
+            padding: 25px; border-radius: 8px;
+        }
+        .context-text { font-size: 0.95rem; line-height: 1.6; color: #451a03; text-align: justify; }
+
+        .methodology-box h3 { color: var(--usta-blue); margin-bottom: 20px; font-size: 1.2rem; }
+        .feature-row { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
+        .f-icon { width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; flex-shrink: 0; font-size: 1.1rem; }
+        .bg-green { background: var(--green-text); }
+        .bg-red { background: var(--red-text); }
+        .bg-blue { background: var(--blue-text); }
+        
+        .f-content h4 { font-size: 1rem; margin-bottom: 4px; font-weight: 800; }
+        .f-content p { font-size: 0.9rem; color: #475569; }
+
+        .landing-footer { padding: 20px 40px 40px 40px; text-align: center; }
+        .btn-start {
+            background: var(--usta-blue); color: white; border: none; padding: 16px 40px;
+            font-size: 1.1rem; font-weight: 700; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3); transition: all 0.3s;
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-start:hover { transform: translateY(-3px) scale(1.02); background: #1e40af; }
+
+        /* --- 3. INTERFAZ PRINCIPAL (DASHBOARD) --- */
+        #app-dashboard {
+            opacity: 0; visibility: hidden; height: 100%; display: flex; flex-direction: column; transition: opacity 0.8s ease;
+        }
+
+        header {
+            background: white; padding: 0 25px; height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+        }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand-logo { font-size: 2rem; color: var(--usta-blue); }
+        .brand-text h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); margin: 0; }
+        .brand-text small { color: #64748b; font-size: 0.85rem; }
+
+        nav {
+            background: white; padding: 0 25px; height: 60px;
+            display: flex; gap: 2px; overflow-x: auto; align-items: flex-end;
+            border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+        }
+        nav::-webkit-scrollbar { height: 4px; }
+        nav::-webkit-scrollbar-thumb { background: #cbd5e1; }
+        
+        .tab-btn {
+            background: transparent; border: none; padding: 12px 16px;
+            font-size: 0.9rem; font-weight: 600; color: #64748b;
+            cursor: pointer; border-bottom: 4px solid transparent; transition: all 0.2s;
+            white-space: nowrap; display: flex; flex-direction: column; align-items: center; line-height: 1.1;
+        }
+        .tab-btn span { font-size: 0.75rem; font-weight: normal; opacity: 0.8; margin-top: 2px; }
+        .tab-btn:hover { color: var(--usta-blue); background: #f8fafc; }
+        .tab-btn.active { color: var(--usta-blue); border-bottom: 4px solid var(--usta-blue); font-weight: 800; background: #eff6ff; }
+
+        main { flex: 1; padding: 20px 25px; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+        .panel-title h3 { font-size: 1.5rem; color: var(--text-dark); display: flex; align-items: center; gap: 12px; margin: 0; }
+        .scores { display: flex; gap: 15px; }
+        .score-pill { padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 1rem; border: 1px solid; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+        .score-pill span { font-size: 0.7rem; text-transform: uppercase; margin-bottom: 3px; opacity: 0.8; }
+        .sc-auto { background: var(--green-soft); color: var(--green-text); border-color: #a7f3d0; }
+        .sc-par { background: var(--red-soft); color: var(--red-text); border-color: #fecaca; }
+
+        .grid-3 {
+            display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 20px; height: 100%; overflow: hidden;
+        }
+        
+        .col-card {
+            background: white; border-radius: 12px; display: flex; flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); overflow: hidden; border-top: 5px solid;
+        }
+        .c-fort { border-color: var(--green-text); }
+        .c-hall { border-color: var(--red-text); }
+        .c-estr { border-color: var(--blue-text); }
+
+        .col-header { padding: 15px; font-weight: 800; font-size: 0.95rem; text-transform: uppercase; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f1f5f9; }
+        .ch-fort { background: var(--green-soft); color: var(--green-text); }
+        .ch-hall { background: var(--red-soft); color: var(--red-text); }
+        .ch-estr { background: var(--blue-soft); color: var(--blue-text); }
+
+        .col-body { padding: 0; overflow-y: auto; flex: 1; }
+        .col-body::-webkit-scrollbar { width: 8px; }
+        .col-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* ITEM STYLES */
+        .item { padding: 18px; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; color: #334155; line-height: 1.6; }
+        .item:last-child { border-bottom: none; }
+        .item strong { display: block; color: var(--text-dark); margin-bottom: 6px; font-size: 1rem; font-weight: 700; }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .b-critico { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .b-alerta { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .b-escudo { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .b-premisa { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; width: 100%; text-align: center; display: block;}
+
+        /* Special Content Boxes */
+        .box-script {
+            background: #eff6ff; border-left: 5px solid var(--usta-blue);
+            padding: 12px; margin-top: 10px; font-family: 'Courier New', monospace; color: #1e3a8a; font-size: 0.9rem; border-radius: 0 6px 6px 0;
+        }
+        .box-script::before { content: "💬 GUION DE DEFENSA:"; display: block; font-weight: bold; font-family: sans-serif; margin-bottom: 5px; font-size: 0.7rem; opacity: 0.7; letter-spacing: 1px; }
+
+        .box-question {
+            background: #fff1f2; border: 1px dashed #e11d48; border-radius: 8px;
+            padding: 12px; margin-top: 10px; color: #be123c; font-weight: 600;
+        }
+        .box-question::before { content: "❓ PREGUNTA DEL PAR:"; display: block; font-size: 0.7rem; opacity: 0.8; margin-bottom: 4px; letter-spacing: 1px; }
+
+        .box-action {
+            margin-top: 10px; padding: 10px 15px; background: #fffbeb; border-radius: 6px; border: 1px solid #fcd34d; color: #92400e; font-style: italic; display: flex; align-items: start; gap: 8px;
+        }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @media(max-width: 1000px) { .landing-body { grid-template-columns: 1fr; } .grid-3 { grid-template-columns: 1fr; overflow-y: auto; } }
+
+    </style>
+</head>
+<body>
+
+    <section id="landing-screen">
+        <div class="landing-card">
+            <div class="landing-header">
+                <h1>SIMULACRO DE ACREDITACIÓN</h1>
+                <p>Programa de Estadística | Universidad Santo Tomás</p>
+            </div>
+            
+            <div class="landing-body">
+                <div class="context-box">
+                    <div style="color:#92400e; font-weight:900; margin-bottom:15px; font-size:1.1rem; display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-shield-halved"></i> OBJETIVO: BLINDAJE TOTAL
+                    </div>
+                    <p class="context-text">
+                        Este ejercicio simula la evaluación del <strong>"Peor Par Académico Posible"</strong> (Crash Test). 
+                        <br><br>
+                        <strong>No se busca desconocer el excelente trabajo adelantado por el equipo</strong>, sino someter el informe escrito a una prueba de estrés máxima. El objetivo es identificar las grietas argumentativas y tener las respuestas listas antes de la visita real.
+                        <br><br>
+                        Si nos preparamos para el par más ácido y crítico, la visita real será un éxito asegurado.
+                    </p>
+                </div>
+
+                <div class="methodology-box">
+                    <h3><i class="fa-solid fa-list-check"></i> Estructura del Tablero</h3>
+                    
+                    <div class="feature-row">
+                        <div class="f-icon bg-green"><i class="fa-solid fa-thumbs-up"></i></div>
+                        <div class="f-content">
+                            <h4>1. Fortalezas (Informe)</h4>
+                            <p>Logros reportados en el informe (Notas 4.2 - 4.7).</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-row">
+                        <div class="f-icon bg-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="f-content">
+                            <h4>2. Hallazgos Críticos</h4>
+                            <p>Las debilidades exactas que atacará el par (Datos del PDF).</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-row">
+                        <div class="f-icon bg-blue"><i class="fa-solid fa-chess-knight"></i></div>
+                        <div class="f-content">
+                            <h4>3. Estrategia de Defensa</h4>
+                            <p>Guiones textuales, acciones de choque y respuestas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="landing-footer">
+                <button class="btn-start" onclick="enterApp()">
+                    <i class="fa-solid fa-play"></i> INICIAR SIMULACRO
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div id="app-dashboard">
+        <header>
+            <div class="brand">
+                <i class="fa-solid fa-graduation-cap brand-logo"></i>
+                <div class="brand-text">
+                    <h2>TABLERO DE CONTROL</h2>
+                    <small>Análisis Crítico - Evaluación Nov 13</small>
+                </div>
+            </div>
+            <div style="color: #64748b; font-size: 0.9rem; text-align:right;">
+                <strong>Estado:</strong> Simulación Activa<br>
+                <span style="font-size:0.8rem">Fuente: Evaluación NOV 13.pdf</span>
+            </div>
+        </header>
+
+        <nav id="nav-container"></nav>
+
+        <main>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <h3 id="factor-title">Cargando...</h3>
+                </div>
+                <div class="scores">
+                    <div class="score-pill sc-auto"><span>Autoevaluación</span><div id="score-auto">-</div></div>
+                    <div class="score-pill sc-par"><span>Proyección Par</span><div id="score-par">-</div></div>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="col-card c-fort">
+                    <div class="col-header ch-fort"><i class="fa-solid fa-check-circle"></i> Fortalezas (Informe)</div>
+                    <div class="col-body" id="list-fort"></div>
+                </div>
+                <div class="col-card c-hall">
+                    <div class="col-header ch-hall"><i class="fa-solid fa-bolt"></i> Hallazgos y Riesgos</div>
+                    <div class="col-body" id="list-hall"></div>
+                </div>
+                <div class="col-card c-estr">
+                    <div class="col-header ch-estr"><i class="fa-solid fa-shield-halved"></i> Estrategia de Defensa</div>
+                    <div class="col-body" id="list-estr"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- FUNCIÓN DE TRANSICIÓN ---
+        function enterApp() {
+            const landing = document.getElementById('landing-screen');
+            const app = document.getElementById('app-dashboard');
+            landing.style.opacity = '0'; 
+            landing.style.transform = 'scale(1.1)';
+            setTimeout(() => { 
+                landing.style.display = 'none'; 
+                app.style.visibility = 'visible'; 
+                app.style.opacity = '1'; 
+            }, 500);
+        }
+
+        // --- BASE DE DATOS COMPLETA (TEXTOS COMPLETOS - NO RESUMIDOS) ---
+        const db = [
+            {
+                id: "general", tab: "0. Global", subtab: "Diagnóstico", title: "2. JUICIO GLOBAL SOBRE EL INFORME DE AUTOEVALUACIÓN",
+                auto: "4.40", par: "3.78",
+                fort: [
+                    { t: "Imagen general que proyecta el informe", d: "El informe presenta un programa consolidado, con resultados muy positivos en todos los factores de evaluación. Las calificaciones globales se ubican entre 4,2 y 4,7 en la escala de 1 a 5, y la calificación final es de 4,4, lo que se interpreta como 'Cumple en alto grado'." },
+                    { t: "Madurez del Programa", d: "Por un lado, habla de un programa maduro, con múltiples fortalezas en docencia, investigación, proyección social, organización y resultados de egresados." }
+                ],
+                hall: [
+                    { t: "Riesgo de sobre calificación y autocrítica limitada", d: "Por otro lado, el hecho de que no haya ningún factor por debajo de 4,2, y que varios estén calificados como 'Cumple plenamente', abre la pregunta sobre el nivel real de autocrítica del ejercicio de autoevaluación. El documento sí menciona aspectos de mejora, y el plan de mejoramiento es detallado. Sin embargo, existe cierta disonancia entre: La narrativa que reconoce aspectos de mejora (baja movilidad, necesidad de mayor inclusión, actualización tecnológica, fortalecimiento del seguimiento a egresados, etc.), y la calificación numérica relativamente alta que se otorga a los factores donde se ubican estas áreas de mejora.", badge: "RIESGO DE LECTURA" },
+                    { t: "Interpretación del Par Exigente", d: "Para un par CNA exigente, esto puede interpretarse como un ejercicio de autoevaluación que, si bien honesto en la descripción cualitativa, tiende a ser benevolente en la valoración cuantitativa." },
+                    { t: "Inquietud del Par (Textual)", d: "Entonces, el PAR podría formularse la siguiente inquietud: 'Si todo está tan bien y los factores se encuentran todos en rangos altos, ¿cuáles son, en la práctica, los problemas reales que el programa reconoce y está dispuesto a enfrentar en los próximos años?'" },
+                    { t: "Plan de Mejoramiento: Estructura sólida, factibilidad discutible (3.5)", d: "El plan de mejoramiento es, en términos formales, muy completo: Formula objetivos, actividades, responsables, indicadores e incluso algunas metas cuantitativas. Sin embargo, un par CNA exigente podría cuestionar: 1) La factibilidad real de ciertas metas ambiciosas (por ejemplo, entorno completamente accesible, incremento sustancial de movilidad). 2) La presencia de líneas base incompletas o marcadas como 'N/A' en algunos casos, que dificultan el seguimiento riguroso. 3) La suficiencia del respaldo financiero y de la distribución de carga académica para lograr los objetivos planteados.", badge: "CRÍTICO PLAN MEJORA" },
+                    { t: "Uso limitado de la estadística (Debilidad Transversal)", d: "Un punto particularmente sensible, dado el carácter del programa, es el siguiente: El informe presenta una buena cantidad de datos (tasas de deserción, permanencia, graduación, etc.). Sin embargo, el tratamiento de estos datos se queda en un nivel principalmente descriptivo: porcentajes, conteos, algunas gráficas de tendencia simples. Para un programa de estadística, un par evaluador esperaría análisis de tendencias con interpretación más fina, segmentación por cohortes, uso de indicadores más sofisticados (análisis de riesgo, intervalos de confianza) y análisis de brechas." }
+                ],
+                estr: [
+                    { t: "Sobre la autocrítica y calificaciones altas", d: "Reconocer la inquietud del par. Explicar el criterio de calificación (trayectoria sólida, pero con márgenes de mejora). Mostrar la autocrítica en el plan de mejoramiento, no solo en el discurso.", type: "script", content: "Reconocemos que el conjunto de calificaciones puede parecer muy alto. En nuestro caso, responde a una trayectoria sólida y al soporte institucional fuerte que tenemos, pero no significa que desconozcamos los problemas. Nuestra autocrítica está plasmada sobre todo en el plan de mejoramiento y en los compromisos concretos que asumimos a 2027." },
+                    { t: "Sobre la factibilidad del plan de mejoramiento", d: "Admitir que el plan es ambicioso. Explicar que se diseñó en coherencia con el Plan de Desarrollo Institucional y recursos previstos. Mostrar acciones ya en marcha.", type: "script", content: "Es cierto que nuestro plan de mejoramiento es ambicioso; lo diseñamos así porque queremos que sea un motor real de transformación. Sin embargo, no partimos de cero: ya tenemos acciones en marcha y estamos comprometidos con revisarlo periódicamente para mantenerlo alineado con nuestras capacidades reales." },
+                    { t: "Sobre el uso de herramientas estadísticas", d: "Reconocer que la observación es pertinente. Explicar que el informe buscó ser accesible para audiencias no estadísticas. Aportar análisis complementarios durante la visita.", type: "script", content: "Ustedes tienen razón al esperar un uso más sofisticado de los datos en un programa de estadística. El informe se mantuvo en un nivel descriptivo para ser accesible a todas las audiencias, pero internamente sí desarrollamos análisis más profundos que estamos dispuestos a compartir durante la visita y a incorporar de forma más explícita en ejercicios futuros." }
+                ]
+            },
+            {
+                id: "f1", tab: "F1", subtab: "Proyecto", title: "Factor 1: Proyecto Educativo del Programa e Identidad Institucional",
+                auto: "4.71", par: "3.80",
+                fort: [
+                    { t: "PEP Claramente Formulado", d: "PEP claramente formulado, con historia de ajustes y coherencia con el Proyecto Educativo Institucional. Buena articulación con el enfoque humanista y tomista, así como con el sistema de créditos, el modelo pedagógico y el SIAC." },
+                    { t: "Sello Distintivo", d: "El programa hace visible un sello distintivo en aplicaciones a economía y finanzas." }
+                ],
+                hall: [
+                    { t: "Discurso Institucional vs Programático", d: "El discurso está fuertemente cargado de texto institucional y menos de ejemplos concretos de decisiones programáticas. Falta evidencia narrativa de cómo los procesos de reflexión curricular se han traducido en cambios específicos (creación o cierre de espacios, reconfiguración de rutas formativas, incorporación de nuevas tecnologías o áreas emergentes)." },
+                    { t: "Motivo del Ajuste de Nota", d: "Un par podría reducir la nota del factor de 4,71 a por ejemplo 3,8 al considerar que no se evidencia una actualización clara postpandemia ni un alineamiento explícito con el Acuerdo CNE 008 de 2023 sobre competencias genéricas.", badge: "CRÍTICO" }
+                ],
+                estr: [
+                    { t: "Alertas para la visita", d: "Es probable que el par CNA pregunte por ejemplos concretos de decisiones curriculares derivadas de ejercicios de autoevaluación anteriores. También puede interesarle cómo el programa equilibra la fuerte presencia de formación humanista con las demandas crecientes en ciencia de datos y analítica." },
+                    { t: "Pregunta Probable", d: "¿Dónde está el mapa de competencias genéricas (comunicación, trabajo en equipo, ética) y cómo se integra en syllabus y rúbricas?", type: "question" }
+                ]
+            },
+            {
+                id: "f2", tab: "F2", subtab: "Estudiantes", title: "Factor 2: Estudiantes",
+                auto: "4.22", par: "3.60",
+                fort: [
+                    { t: "Caracterización y Apoyo", d: "Se cuenta con caracterización de perfil de ingreso (pruebas Saber 11). El programa describe estrategias de acompañamiento académico y psicosocial (tutorías, apoyos, unidades de acompañamiento, etc.)." },
+                    { t: "Participación", d: "Se evidencian rutas de participación estudiantil en actividades de formación integral, semilleros, proyectos, etc." }
+                ],
+                hall: [
+                    { t: "Análisis de Deserción", d: "Falta un análisis más profundo que conecte perfil de ingreso con desempeño, permanencia y graduación. Un par muy exigente podría bajar la nota de 4,22 a 3,6 porque no encuentra metas explícitas de permanencia ni un desglose detallado de causales de deserción; la tasa de deserción se reporta, pero sin un modelo de riesgo ni seguimiento estadístico robusto.", badge: "ALERTA" },
+                    { t: "Participación en Autoevaluación", d: "La participación estudiantil en la autoevaluación, aunque aceptable, no es sobresaliente, y no se discute con suficiente profundidad el posible sesgo de quienes participaron." }
+                ],
+                estr: [
+                    { t: "Alertas para la visita", d: "Pueden preguntar cómo se perfilan los estudiantes en riesgo desde el inicio y qué se hace específicamente con ellos. Si aún no existe un modelo predictivo, esa será una debilidad a gestionar con otras evidencias." },
+                    { t: "Pregunta Técnica Probable", d: "¿Cuál es la sensibilidad y especificidad del modelo predictivo de deserción que utilizan?", type: "question" },
+                    { t: "Acción Urgente", d: "Entregar (o al menos iniciar) un modelo predictivo de deserción con validación estadística.", type: "action" }
+                ]
+            },
+            {
+                id: "f3", tab: "F3", subtab: "Profesores", title: "Factor 3: Profesores",
+                auto: "4.64", par: "4.00",
+                fort: [
+                    { t: "Cualificación Docente", d: "Alto nivel de cualificación del cuerpo docente (maestrías, formación doctoral). El cuerpo docente es de alto nivel como una fortaleza indiscutible: más del 48% de profesores de tiempo completo, 100% de los TC con maestría y siete profesores en formación doctoral." },
+                    { t: "Políticas de Formación", d: "Existencia de políticas institucionales de formación y cualificación continua, con horas de capacitación mínima por año. Participación activa en investigación, publicaciones y eventos académicos." }
+                ],
+                hall: [
+                    { t: "Condiciones Laborales", d: "El par puede indagar y mencionar las preocupaciones de los docentes frente a condiciones de remuneración y tipos de vinculación. No se exploran a fondo las posibles consecuencias de estas condiciones sobre la estabilidad y retención de docentes altamente cualificados." },
+                    { t: "Volatilidad del Escalafón", d: "Los pares pueden llamar la atención sobre la 'volatilidad' del escalafón (Tabla 16), donde se observa un cambio fuerte en el número de auxiliares entre 2019-1 y 2020-II, y preguntar por políticas de retención y retorno de la inversión en formación doctoral.", badge: "DATO ESPECÍFICO" },
+                    { t: "Motivo Ajuste Nota", d: "Buena formación, pero no se evidencia el equilibrio entre carga y producción; 7 doctorandos sin título aún generan fragilidad." }
+                ],
+                estr: [
+                    { t: "Alertas para la visita", d: "Es posible que el par CNA cuestione la sostenibilidad del cuerpo docente si las condiciones contractuales no son suficientemente competitivas." },
+                    { t: "Pregunta Probable", d: "¿Qué garantías de permanencia tienen los docentes a los que se les está financiando el doctorado?", type: "question" }
+                ]
+            },
+            {
+                id: "f4", tab: "F4", subtab: "Egresados", title: "Factor 4: Egresados",
+                auto: "4.53", par: "3.70",
+                fort: [
+                    { t: "Empleabilidad", d: "Altísima empleabilidad de los egresados (por encima del 87-95%) y muy buenos niveles de salario de enganche, situando al programa en posiciones destacadas a nivel nacional." },
+                    { t: "Reconocimiento", d: "Reconocimiento de los egresados como factor de alto impacto en el medio." }
+                ],
+                hall: [
+                    { t: "Sistema de Seguimiento", d: "El sistema de seguimiento a egresados, aunque existente, se reconoce como perfectible. Hay margen para una mejor integración de la retroalimentación de egresados y empleadores en la actualización curricular y en la definición de nuevas líneas de énfasis." },
+                    { t: "Evidencia de Impacto", d: "Un par podría bajar la nota a 3,7 al considerar que la evidencia de impacto es limitada en el tiempo (pocas cohortes) y sin metodología robusta de impacto longitudinal." },
+                    { t: "Vigencia de Datos", d: "El par puede exigir evidencia más reciente (post-pandemia) que confirme la vigencia del sello en finanzas y del nivel salarial, más allá de los datos de 2019." }
+                ],
+                estr: [
+                    { t: "Sobre el seguimiento a egresados", d: "Reconocer que el sistema puede mejorar. Valorar las prácticas actuales. Mostrar avances recientes. Presentar metas específicas en el plan de mejoramiento.", type: "script", content: "Tenemos egresados muy bien posicionados, pero reconocemos que nuestro sistema de seguimiento aún no está al nivel que queremos. Por eso, uno de nuestros compromisos centrales a 2027 es consolidar un observatorio de egresados y empleadores que alimente de manera sistemática nuestras decisiones curriculares." },
+                    { t: "Pregunta Probable", d: "¿Pueden mostrar un estudio de impacto longitudinal en empleadores y una matriz de competencias verificable?", type: "question" },
+                    { t: "Pregunta Probable", d: "¿Tienen una matriz de competencias validada por los empleadores?", type: "question" }
+                ]
+            },
+            {
+                id: "f5", tab: "F5", subtab: "Aspectos Académicos", title: "Factor 5: Aspectos académicos y resultados de aprendizaje",
+                auto: "4.53", par: "3.90",
+                fort: [
+                    { t: "Estructura Curricular", d: "Estructura curricular clara, con identificación de un sello propio del programa (énfasis en aplicaciones en economía y finanzas). Incremento de la flexibilidad curricular mediante la actualización de 2019." },
+                    { t: "Integración", d: "Buena integración entre formación disciplinar, matemáticas, aplicaciones y formación sociohumanística." }
+                ],
+                hall: [
+                    { t: "Validación del SEA", d: "Un par podría bajar la calificación a 4.0 (o 3.9) porque no encuentra validación externa del Sistema de Evaluación de Aprendizajes (SEA) ni evidencias de comparación con otros programas acreditados." },
+                    { t: "Ciencia de Datos", d: "Un par puede argüir un hallazgo crítico: la integración de ciencia de datos y machine learning es aún superficial; aparece más en la prospectiva y en la intención de crear una línea o especialización futura, lo que abre dudas de pertinencia frente al mercado actual.", badge: "CRÍTICO" },
+                    { t: "Resultados de Aprendizaje", d: "Los resultados de aprendizaje se mencionan de forma general, pero no siempre se presenta una matriz robusta que los conecte con asignaturas, metodologías de evaluación y evidencias concretas." }
+                ],
+                estr: [
+                    { t: "Sobre la integración de ciencia de datos", d: "Reconocer que la línea de ciencia de datos aún no está plenamente formalizada en el currículo como énfasis estructurado. Reencuadrar el mensaje: el programa forma estadísticos con fundamento teórico sólido, base de la mayoría de técnicas de machine learning. Mostrar evidencias de proyectos/aplicaciones con técnicas modernas.", type: "script", content: "Es cierto que nuestra línea de ciencia de datos está en consolidación formal, pero la base está en nuestros cursos de modelos lineales, multivariada y series de tiempo. Nuestros estudiantes ya implementan técnicas de machine learning en proyectos y trabajos de grado; la reforma curricular busca darles un espacio nominal y articulado como énfasis, no empezar desde cero." },
+                    { t: "Pregunta Técnica Probable", d: "¿Han medido la confiabilidad interevaluador (ej. kappa de Cohen) de las rúbricas que usan en el SEA? ¿Tienen benchmarking de sus resultados con otros programas acreditados?", type: "question" },
+                    { t: "Pregunta Probable", d: "Su prospectiva habla de crear una línea de ciencia de datos. ¿Significa esto que sus egresados actuales están saliendo sin competencias formales en machine learning y big data?", type: "question" }
+                ]
+            },
+            {
+                id: "f6", tab: "F6", subtab: "Permanencia", title: "Factor 6: Permanencia y graduación",
+                auto: "4.36", par: "3.50",
+                fort: [
+                    { t: "Datos y Alertas", d: "Existencia de datos de deserción, repitencia y graduación, así como de sistemas de alerta temprana. Descripción de acciones de apoyo académico y psicosocial." }
+                ],
+                hall: [
+                    { t: "Eficiencia Terminal Baja", d: "El programa tiene una duración formal de 8 semestres, pero el tiempo promedio de graduación es de 10,86 semestres, y solo el 60% de los estudiantes se gradúa en 10 semestres o menos. Esto se interpreta como baja eficiencia terminal estructural, asociada a alta reprobación en cursos como Probabilidad, Inferencia y Estadística Bayesiana.", badge: "DATO CLAVE" },
+                    { t: "Análisis de Datos", d: "El análisis de los datos podría ser más sofisticado (identificación de patrones de riesgo por subpoblaciones, análisis longitudinal por cohortes, etc.). Falta una narrativa más fuerte sobre qué cambios sustantivos se han implementado a partir de la identificación de espacios con alta reprobación." },
+                    { t: "Modelo Predictivo", d: "Un par podría pedir que el programa presente un modelo de deserción con validación estadística (por ejemplo, un logit multinivel con AUC > 0,75)." }
+                ],
+                estr: [
+                    { t: "Sobre la eficiencia terminal (10,86 semestres)", d: "No minimizar el dato. Presentarlo como uno de los hallazgos más importantes de la autoevaluación. Explicar el diagnóstico: cursos cuello de botella (Probabilidad, Inferencia, Bayesiana) y relación con bases en cálculo/álgebra. Mostrar decisiones ya tomadas: Ajuste curricular (reubicación de Cálculo Diferencial e Integral en primeros semestres).", type: "script", content: "Efectivamente, par, nuestro análisis mostró un tiempo promedio de grado de 10,86 semestres, y ese fue el principal detonante de nuestro plan de mejora. Identificamos que el nudo crítico eran los cursos del núcleo estadístico ligados a bases matemáticas y ya hicimos un ajuste curricular en 2020, reforzado con un programa de tutorías y monitores. Hoy, las primeras cohortes post-ajuste ya muestran mejoras en las tasas de aprobación." },
+                    { t: "Pregunta Probable", d: "¿Cómo explican un tiempo promedio de grado de 10,86 semestres en un programa de ocho semestres? ¿Qué evidencias tienen de que los ajustes curriculares adoptados están mejorando la situación?", type: "question" }
+                ]
+            },
+            {
+                id: "f7", tab: "F7", subtab: "Internacionalización", title: "Factor 7: Interacción con el entorno nacional e internacional",
+                auto: "4.45", par: "3.40",
+                fort: [
+                    { t: "Eventos y Proyección", d: "Presencia de eventos de proyección como el International Workshop on Applied Statistics (IWAS). Existencia del consultorio estadístico y del programa SMART como mecanismos de interacción con el entorno y apropiación social de la ciencia. Participación de estudiantes en actividades de extensión e investigación aplicada." }
+                ],
+                hall: [
+                    { t: "Movilidad Baja", d: "La movilidad estudiantil, tanto nacional como internacional, es reconocidamente baja. Un par podría bajar la clasificación al señalar que solo se reportan 14 movilidades salientes en cinco años, lo que equivale a aproximadamente un 2% de la matrícula, por debajo de una referencia de 5% que se considera mínima para este tipo de programas.", badge: "CRÍTICO" },
+                    { t: "Barreras", d: "Faltan análisis más profundos sobre las barreras para la movilidad (económicas, idiomáticas, curriculares, de gestión) y las estrategias concretas para superarlas." }
+                ],
+                estr: [
+                    { t: "Sobre la baja movilidad estudiantil", d: "Reconocer que las cifras son bajas. Explicar las causas (económicas, idiomáticas, carga laboral/horaria). Mostrar acciones concretas en marcha: nuevos convenios, movilidad virtual, flexibilización de cargas. Plantear metas realistas de incremento gradual.", type: "script", content: "Sabemos que nuestra movilidad es baja y no lo ocultamos. Las condiciones económicas y laborales de parte de nuestra población estudiantil han sido una barrera importante, pero ya estamos moviéndonos en tres frentes: más convenios, movilidad virtual y flexibilidad curricular, buscando que cada cohorte tenga al menos un grupo significativo de estudiantes con experiencia nacional o internacional." },
+                    { t: "Pregunta Probable", d: "¿Cómo se explica que, con un evento como el IWAS y otros espacios, haya solo 14 movilidades en cinco años? ¿Cuál es su plan concreto de movilidad 2024-2026 con presupuesto?", type: "question" },
+                    { t: "Acción Sugerida", d: "Asegurar convenios internacionales de calidad y un plan realista de movilidad.", type: "action" }
+                ]
+            },
+            {
+                id: "f8", tab: "F8", subtab: "Investigación", title: "Factor 8: Investigación",
+                auto: "4.61", par: "4.10",
+                fort: [
+                    { t: "Grupo Fuerte", d: "Grupo de investigación bien posicionado en MinCiencias. Buena producción." }
+                ],
+                hall: [
+                    { t: "Financiación Externa", d: "Debilidad en conseguir recursos externos sostenidos (pocos proyectos con recursos externos en varios años). Dependencia de recursos internos." }
+                ],
+                estr: [
+                    { t: "Acción Sugerida", d: "Potenciar publicación en inglés en la revista del programa para reforzar visibilidad internacional.", type: "action" }
+                ]
+            },
+            {
+                id: "f9", tab: "F9", subtab: "Bienestar", title: "Factor 9: Bienestar",
+                auto: "4.26", par: "3.80",
+                fort: [
+                    { t: "Oferta Amplia", d: "Oferta institucional amplia y diversa." }
+                ],
+                hall: [
+                    { t: "Medición de Impacto", d: "Descripción extensa, pero sin indicadores de satisfacción validados psicométricamente (no se reportan análisis psicométricos como alfa de Cronbach)." }
+                ],
+                estr: []
+            },
+            {
+                id: "f10", tab: "F10", subtab: "Medios Educativos", title: "Factor 10: Medios educativos",
+                auto: "4.22", par: "3.60",
+                fort: [
+                    { t: "Infraestructura CRAI", d: "Infraestructura física de CRAI y suscripciones a bases de datos." }
+                ],
+                hall: [
+                    { t: "Caída en Consultas", d: "Caída fuerte y sostenida en consultas de material físico y electrónico, con desplome de consultas electrónicas de 21.376 (2019) a 8.951 (2023). Se lee como desajuste entre la inversión en bases de datos y su uso real por estudiantes y docentes. El par G considera las figuras del CRAI como 'alarmantes'.", badge: "ALARMANTES" }
+                ],
+                estr: [
+                    { t: "Sobre la caída en el uso del CRAI", d: "Aceptar que la caída en consultas físicas y electrónicas es preocupante. Presentar hipótesis de causa: preferencia por buscadores abiertos, baja promoción activa del CRAI, cambio en hábitos de estudio. Mostrar acciones de choque: Capacitaciones obligatorias con CRAI por asignatura o por semestre, auditoría de syllabus.", type: "script", content: "Compartimos su preocupación por la caída en las consultas al CRAI; fue uno de los gráficos que más nos interpeló. Nuestra hipótesis combina el uso excesivo de buscadores abiertos y una promoción insuficiente del CRAI. Por eso, desde 2024-1 implementamos una estrategia conjunta con el CRAI: capacitaciones obligatorias, auditoría de syllabus y exigencia de referencias de bases suscritas en trabajos de grado." },
+                    { t: "Pregunta Probable", d: "Sus propias gráficas muestran un colapso en el uso de recursos bibliográficos, incluidos los electrónicos. ¿Cómo se aseguran de que los estudiantes usan bibliografía científica y no solo internet general?", type: "question" }
+                ]
+            },
+            {
+                id: "f11", tab: "F11", subtab: "Gestión", title: "Factor 11: Organización y gestión",
+                auto: "4.64", par: "4.00",
+                fort: [
+                    { t: "Estructura Sólida", d: "Buena estructura organizativa." }
+                ],
+                hall: [
+                    { t: "Auditoría Interna", d: "Buena estructura, pero falta evidencia de auditoría interna alineada con criterios CNA." }
+                ],
+                estr: []
+            },
+            {
+                id: "f12", tab: "F12", subtab: "Infraestructura", title: "Factor 12: Recursos físicos",
+                auto: "4.30", par: "3.70",
+                fort: [
+                    { t: "Espacios Generales", d: "Espacios generales suficientes." }
+                ],
+                hall: [
+                    { t: "Obsolescencia Tecnológica", d: "Salas de cómputo con ciclo de vida vencido y sin actas de mantenimiento anexas. Dependencia de software especializado en al menos 25 cursos. El riesgo es que la capacidad de hardware limite seriamente el tipo de proyectos y análisis que se pueden trabajar en clase.", badge: "RIESGO CRÍTICO" }
+                ],
+                estr: [
+                    { t: "Sobre la modernización tecnológica", d: "Reconocer que la obsolescencia tecnológica es un reto real para un programa como Estadística. Mostrar gestiones ya realizadas: solicitudes formales de renovación, presupuestos, cronograma. Complementar con visión de mediano plazo: laboratorios virtuales en la nube (Google, AWS, Azure).", type: "script", content: "Para un programa como el nuestro, la tecnología no puede ser un limitante. Reconocemos que varias salas tienen más de cinco años de uso y por eso ya radicamos ante la Vicerrectoría un plan de renovación 2024-2026, que incluye no solo hardware físico, sino también la gestión de un convenio de nube académica para proyectos que requieren cómputo de alto rendimiento." },
+                    { t: "Pregunta Probable", d: "¿Puede un estudiante hoy, en sus salas de cómputo, correr modelos complejos en R o Python con datasets grandes? ¿Cuál es el plan concreto de renovación de equipos y/o uso de nube académica?", type: "question" },
+                    { t: "Acción Urgente", d: "Presentar un plan de renovación de equipos con recursos ya comprometidos o en trámite avanzado.", type: "action" }
+                ]
+            }
+        ];
+
+        // --- RENDERIZADO ---
+        const nav = document.getElementById('nav-container');
+        const listFort = document.getElementById('list-fort');
+        const listHall = document.getElementById('list-hall');
+        const listEstr = document.getElementById('list-estr');
+
+        function initApp() {
+            db.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `tab-btn ${idx===0 ? 'active' : ''}`;
+                btn.innerHTML = `${item.tab} <span>${item.subtab}</span>`;
+                btn.onclick = () => loadTab(idx);
+                nav.appendChild(btn);
+            });
+            loadTab(0);
+        }
+
+        function loadTab(idx) {
+            const data = db[idx];
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                if(i===idx) b.classList.add('active'); else b.classList.remove('active');
+            });
+
+            document.getElementById('factor-title').innerText = data.title;
+            document.getElementById('score-auto').innerText = data.auto;
+            document.getElementById('score-par').innerText = data.par;
+
+            renderList(listFort, data.fort);
+            renderList(listHall, data.hall);
+            renderList(listEstr, data.estr);
+        }
+
+        function renderList(container, items) {
+            container.innerHTML = '';
+            if(!items || items.length === 0) {
+                container.innerHTML = '<div style="padding:20px; color:#94a3b8; font-style:italic;">No hay información específica registrada para esta sección en el documento.</div>';
+                return;
+            }
+            items.forEach(i => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                let html = '';
+                
+                if(i.badge) {
+                    let bClass = 'b-alerta';
+                    if(i.badge.includes('CRÍTICO') || i.badge.includes('ALARMANTES') || i.badge.includes('RIESGO DE LECTURA')) bClass = 'b-critico';
+                    html += `<span class="badge ${bClass}">${i.badge}</span>`;
+                }
+
+                html += `<strong>${i.t}</strong>${i.d}`;
+
+                if(i.type === 'script') {
+                    html += `<div class="box-script">"${i.content}"</div>`;
+                }
+                if(i.type === 'question') {
+                    html += `<div class="box-question">"${i.d}"</div>`;
+                }
+                if(i.type === 'action') {
+                    html += `<div class="box-action"><i class="fa-solid fa-bolt"></i> Requiere evidencia física inmediata</div>`;
+                }
+
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+        }
+
+        initApp();
+
+    </script>
+</body>
+</html>
